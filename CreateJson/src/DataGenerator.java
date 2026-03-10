@@ -1,13 +1,14 @@
+import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.ResultSet;
-import java.util.Random;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import com.google.gson.Gson;
-import java.io.FileWriter;
 
 public class DataGenerator {
 
@@ -48,12 +49,28 @@ public class DataGenerator {
                 Random rand = new Random();
 
                 for (int i = 1; i <= 100; i++) {
-                    pstmt.setInt(1, i);
-                    pstmt.setInt(2, rand.nextInt(11) + 5);
-                    pstmt.setInt(3, rand.nextInt(41));
-                    pstmt.setInt(4, rand.nextInt(30) + 1);
-                    pstmt.setInt(5, rand.nextInt(4) + 1);
+                	
+                	// 変数作成
+                	int id = i;
+                	int age = rand.nextInt(41);
+                	int distance = rand.nextInt(30) + 1;
+                	int layout = rand.nextInt(4) + 1;
+                	
+                	// 回帰分析（係数はダミー）                	
+                	double baseRent = 5.0 + (layout * 1.2) - (age * 0.2) - (distance * 0.1) ;
+                	
+                	// 正規分布ノイズ
+                	double noise = rand.nextGaussian() * 1.5;
+                	int rent = (int) Math.round(baseRent + noise);
+                	rent = Math.max(rent, 3);
+                	
+                    pstmt.setInt(1, id);
+                    pstmt.setInt(2, rent);
+                    pstmt.setInt(3, age);
+                    pstmt.setInt(4, distance);
+                    pstmt.setInt(5, layout);
                     pstmt.executeUpdate();
+                    
                 }
             }
 
