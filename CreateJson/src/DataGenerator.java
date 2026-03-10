@@ -55,7 +55,7 @@ public class DataGenerator {
                     pstmt.setInt(5, rand.nextInt(4) + 1);
                     pstmt.executeUpdate();
                 }
-            } // ← ここに pstmt の try ブロックを閉じるカッコを追加しました
+            }
 
             // 3. データ取得とJSON変換
             String selectSQL = "SELECT * FROM HousePrice";
@@ -96,7 +96,7 @@ public class DataGenerator {
                     e.printStackTrace();
                 }
 
-            } // ← ここに selectStmt の try ブロックを閉じるカッコを追加しました
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
