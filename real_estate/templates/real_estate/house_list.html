@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>物件データ一覧</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 800px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>🏢ダミー物件データ一覧</h1>
+    <p>Javaの重回帰分析ロジックで生成したデータです。</p>
+    
+    <div style="background-color: #eef9f0; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #cce8d4;">
+        <h3 style="margin-top: 0;">📊データ分析インサイト</h3>
+        <ul style="font-size: 1.1em;">
+            <li><strong>平均家賃:</strong> {{ avg_rent }} 万円</li>
+            <li><strong>家賃と築年数の相関係数:</strong> {{ corr_rent_age }} 
+                <span style="font-size: 0.9em; color: #555;">
+                    （※マイナスに近いほど、築年数が古い＝家賃が安いという負の相関を示します）
+                </span>
+            </li>
+        </ul>
+    </div>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>家賃 (万円)</th>
+            <th>築年数 (年)</th>
+            <th>駅距離 (km)</th>
+            <th>専有面積 (m²)</th>
+        </tr>
+        {% for house in houses %}
+        <tr>
+            <td>{{ house.id }}</td>
+            <td>{{ house.rent }}</td>
+            <td>{{ house.age }}</td>
+            <td>{{ house.distance }}</td>
+            <td>{{ house.layout }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
