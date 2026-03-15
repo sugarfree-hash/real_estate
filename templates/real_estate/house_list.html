@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>物件データ一覧</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 800px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>🏢ダミー物件データ一覧</h1>
+    <p>Javaの重回帰分析ロジックで生成したデータです。</p>
+    
+    <div style="background-color: #eef9f0; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #cce8d4;">
+        <h3 style="margin-top: 0;">📊データ分析インサイト</h3>
+        <ul style="font-size: 1.1em;">
+            <li><strong>平均家賃:</strong> {{ avg_rent }} 万円</li>
+            <li><strong>家賃と築年数の相関係数:</strong> {{ corr_rent_age }} 
+                <span style="font-size: 0.9em; color: #555;">
+                    （※マイナスに近いほど、築年数が古い＝家賃が安いという負の相関を示します）
+                </span>
+            </li>
+        </ul>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div style="width: 100%; max-width: 600px; margin: 20px auto;">
+        <canvas id="rentAgeScatterChart"></canvas>
+    </div>
+
+    <script>
+        // DjangoのリストをJavaScriptの配列に
+        const ages = {{ ages_list|safe }};
+        const rents = {{ rents_list|safe }};
+
+        // Chart.js用に、[{x: 築年数, y: 家賃}, ...] というデータの形に結合する
+        const scatterData = ages.map((ageValue, index) => {
+            return {
+                x: ageValue,
+                // [ここを考えてみよう2：rents配列の中から、ageValueと同じインデックス(順番)の値を取り出してyにセットする]
+                // ヒント：JavaScriptで配列のN番目を取り出す書き方です
+                y: rents[index]
+            };
+        });
+
+        // ここから下はChart.jsの設定（デザインや軸の設定）です
+        const ctx = document.getElementById('rentAgeScatterChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'scatter', // 散布図を指定
+            data: {
+                datasets: [{
+                    label: '物件データ (築年数と家賃)',
+                    data: scatterData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)', // ドットの色
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    pointRadius: 5, // ドットの大きさ
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: { display: true, text: '築年数 (年)' }
+                    },
+                    y: {
+                        title: { display: true, text: '家賃 (万円)' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
