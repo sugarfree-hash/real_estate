@@ -71,5 +71,46 @@
             }
         });
     </script>
+
+    <div style="background-color: #f8f9fa; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #dee2e6;">
+        <h3 style="margin-top: 0;">🔍 物件を絞り込む</h3>
+        <form method="GET" action="">
+            <label style="margin-right: 15px;">
+                家賃上限（万円）: 
+                <input type="number" name="max_rent" value="{{ request.GET.max_rent }}">
+            </label>
+            <label style="margin-right: 15px;">
+                築年数上限（年）: 
+                <input type="number" name="max_age" value="{{ request.GET.max_age }}">
+            </label>
+            <button type="submit" style="padding: 5px 15px; cursor: pointer;">検索</button>
+            <a href="{% url 'house_list' %}" style="margin-left: 10px; font-size: 0.9em; color: #666;">条件をクリア</a>
+        </form>
+    </div>
+
+    <div style="background-color: #fff3cd; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #ffeeba;">
+        <h3 style="margin-top: 0; color: #856404;">✨ AI選定！お宝物件トップ5</h3>
+        <p style="color: #856404;">機械学習モデルが算出した「適正家賃」より、実際の家賃が安く設定されているお得な物件です。</p>
+        
+        <ul>
+            {% for bargain in top_bargains %}
+            
+            <li style="margin-bottom: 10px;">
+                <strong>物件ID: {{ bargain.id }}</strong><br>
+                実際の家賃: {{ bargain.rent }}万円 
+                <span style="color: #666;">(AI予測の適正家賃: {{ bargain.predicted_rent|floatformat:1 }}万円)</span><br>
+                
+                <span style="color: #d9534f; font-weight: bold;">
+                    なんと {{ bargain.rent|floatformat:1 }} 万円お得！
+                </span><br>
+                
+                <span style="font-size: 0.9em; color: #666;">
+                    (築{{ bargain.age }}年 / 駅徒歩{{ bargain.distance }}km / 広さレベル{{ bargain.layout }})
+                </span>
+            </li>
+            
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
