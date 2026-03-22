@@ -37,7 +37,7 @@
         const ages = {{ ages_list|safe }};
         const rents = {{ rents_list|safe }};
 
-        // Chart.js用に、[{x: 築年数, y: 家賃}, ...] というデータの形に結合する
+        // Chart.js用に、[{x: 築年数, y: 家賃}, ...] というデータの形に結合
         const scatterData = ages.map((ageValue, index) => {
             return {
                 x: ageValue,
