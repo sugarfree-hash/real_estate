@@ -1,0 +1,28 @@
+---
+title: "不動産データ統計解析レポート"
+author: "sugarfree-hash"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+# 1.ライブラリ
+library(DBI)
+library(RSQLite)
+library(ggplot2)
+
+# 2. データの読み込み
+con <- dbConnect(RSQLite::SQLite(), "real_estate.db")
+mydata <- dbReadTable(con, "houseprice")
+dbDisconnect(con)
+
+# 3. 分析
+model <- lm(rent ~ age + distance + layout, data = mydata)
+summary(model)
+
+# 4. グラフ表示
+ggplot(mydata, aes(x = age, y = rent)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  geom_smooth(method = "lm", color = "red") +
+  theme_minimal()
+```
