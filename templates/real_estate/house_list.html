@@ -110,7 +110,27 @@
             </li>
             
             {% endfor %}
+
+            <div style="margin-bottom: 15px; font-size: 0.9em;">
+                {% if is_significant %}
+                    <span style="color: #28a745; font-weight: bold;">● 信頼性：高</span>
+                {% else %}
+                    <span style="color: #6c757d;">● 信頼性：判定中</span>
+                {% endif %}
+            
+                    <span style="margin-left: 10px;">{{ reliability_msg }}</span>
+            </div>
+            <ul>
+                {% for bargain in top_bargains %}
+                    {% endfor %}
+            </ul>
         </ul>
+
+            {% if plot_data%}
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <img src="{{ plot_data }}" alt="分析グラフ" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+            {% endif %}
     </div>
 </body>
 </html>
