@@ -1,69 +1,78 @@
+import json
+import subprocess
 import pandas as pd
+from . import analytics
 from django.shortcuts import render
+from django.shortcuts import redirect
 from .models import HousePrice
-from sklearn.linear_model import LinearRegression
+
 
 def house_list(request):
-    # データ取得
+    # 1. データ取得
     houses = HousePrice.objects.all()
 
-    # 検索条件受け取り
+    # 2. 検索フィルタリング
     max_rent = request.GET.get('max_rent')
     max_age = request.GET.get('max_age')
 
-    # フィルタリング処理
     if max_rent:
         houses = houses.filter(rent__lte=max_rent)
 
     if max_age:
         houses = houses.filter(age__lte=max_age)
 
-    # Pandasデータフレームへ変換
+    # 3. Pandasデータフレームへ変換
     df = pd.DataFrame(list(houses.values()))
-    
-    # おすすめ物件推薦
-    top_bargains = []
 
-    # 0件対策と割安物件計算
-    if not df.empty and len(df) > 1:
-        X = df[['age', 'distance', 'layout']]
-        y = df['rent']
-
-        model = LinearRegression()
-        model.fit(X, y)
-
-        df['predicted_rent'] = model.predict(X)
-
-        df['bargain_score'] = df['predicted_rent'] - df['rent']
-
-        top_bargains = df.sort_values(by='bargain_score', ascending=False).head(5).to_dict('records')
-
-    # データが空の場合スキップ
-    if df.empty:
-        avg_rent = 0
-        corr_rent_age = 0
-        ages_list = []
-        rents_list = []
-    else:
-        avg_rent = df['rent'].mean()
-        corr_rent_age = df['rent'].corr(df['age'])
-        
-        avg_rent = round(avg_rent, 1)
-
-        # 相関係数のNan対策
-        corr_rent_age = 0 if pd.isna(corr_rent_age) else round(corr_rent_age, 3)
-
-        ages_list = df['age'].tolist()
-        rents_list = df['rent'].tolist()
+    # 4. 分析をanalytics.pyへ
+    analysis_result = analytics.run_analysis(df)
 
     # テンプレートへ渡すデータの作成
     context = {
         'houses':houses,
-        'avg_rent':avg_rent,
-        'corr_rent_age':corr_rent_age,
-        'ages_list':ages_list,
-        'rents_list':rents_list,
-        'top_bargains':top_bargains,
+        **analysis_result,
     }
 
     return render(request, 'real_estate/house_list.html', context)
+
+def generate_new_data(request):
+    '''Javaを叩いてDBを更新する関数'''
+
+    jar_path = r'C:\Users\sugar\real_estate\data_generator.jar'
+
+    if request.method == 'POST':
+
+        try:
+            # Javaの実行
+            subprocess.run(
+                ['java', '-jar', jar_path],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+
+            read_file = r'C:\Users\sugar\real_estate\dummy_estate_data.json'
+            # JSONファイル読み込み
+            with open(read_file, 'r', encoding='utf-8') as f:
+                data_list = json.load(f)
+
+            # DBの入れ替え
+            HousePrice.objects.all().delete()
+
+            # 辞書データをHousePriceモデルにするため新しいリストに
+            instances = [
+                HousePrice(
+                    rent=item['rent'],
+                    age=item['age'],
+                    distance=item['distance'],
+                    layout=item['layout']
+                )
+                for item in data_list
+            ]
+            HousePrice.objects.bulk_create(instances)
+
+
+        except Exception as e:
+            print(f"データ更新中にエラーが発生しました: {e}")
+
+    return redirect('house_list')
